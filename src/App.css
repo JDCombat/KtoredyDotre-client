@@ -1,0 +1,35 @@
+*{margin: 0; padding: 0; box-sizing: border-box;}
+.main{
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+.searchBox{
+  width: 400px;
+  height: 700px;
+  position: absolute;
+  left: 1vw;
+  top: 1vh;
+  background-color: white;
+  border-radius: 10px;
+  z-index: 999;
+}
+.searchForm{
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+input[type="text"]{
+  border: none;
+  border-radius: 5px;
+  height: 30px;
+  background-color: aliceblue; 
+  transition: height 0.3s ease-in-out; 
+}
+input[type="text"]:focus{
+  height: 40px;
+}
+input[type="text"]:focus-visible{
+  outline: none;
+}
