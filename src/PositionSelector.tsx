@@ -1,5 +1,5 @@
-import { divIcon, LatLng, LatLngBounds, type LeafletMouseEvent } from 'leaflet'
-import { useEffect, useState } from 'react'
+import { divIcon, LatLng, LatLngBounds, type LeafletEventHandlerFnMap, type LeafletMouseEvent } from 'leaflet'
+import { useEffect, useRef, useState } from 'react'
 import { Marker, Popup, useMapEvents } from 'react-leaflet'
 
 type props = {
@@ -9,87 +9,122 @@ type props = {
     setTargetPosition: (state: [number, number] | null) => void
     setStartInput: (state: string) => void
     setTargetInput: (state: string) => void,
-    clickEnabled: boolean
+    clickEnabled: boolean,
+    setStartStop: (state: string | null) => void
+    setTargetStop: (state: string | null) => void,
+    handleSearchJourney: (data: FormData) => void
 }
 
-
-
-export default function PositionSelector({startPosition, setStartPosition, targetPosition, setTargetPosition, setTargetInput, setStartInput, clickEnabled}: props) {
+export default function PositionSelector({ startPosition, setStartPosition, targetPosition, setTargetPosition, setTargetInput, setStartInput, clickEnabled, setTargetStop, setStartStop, handleSearchJourney }: props) {
     const [selectingPosition, setSelectingPosition] = useState<LatLng | null>(null)
+
+    const targetMarkerRef = useRef(null)
+    const startMarkerRef = useRef(null)
+
     const map = useMapEvents({
         click(e: LeafletMouseEvent) {
-            if(!clickEnabled) return
-            if(e.originalEvent.target instanceof HTMLButtonElement){
+            if (!clickEnabled) return
+            if (e.originalEvent.target instanceof HTMLButtonElement) {
                 return
             }
             setTimeout(() => setSelectingPosition(e.latlng), 1)
-        }
+        },
     })
-    useEffect(() => {
-        if(startPosition) {
-            if(targetPosition){
-                map.flyToBounds(new LatLngBounds([targetPosition, startPosition]))
+    const eventHandlers: LeafletEventHandlerFnMap = {
+        dragend: (e) => {
+            console.log(e)
+            if (targetMarkerRef.current) {
+                const latLang = targetMarkerRef.current.getLatLng()
+                setTargetPosition([latLang.lat, latLang.lng])
+                setTargetStop(null)
+                handleSearchJourney(new FormData())
+                fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latLang?.lat}&lon=${latLang?.lng}&format=json`, { headers: { "accept-language": "pl-PL" } })
+                    .then(res => res.json())
+                    .then(data => {
+                        setTargetInput(data.display_name?.toString().split(",").slice(0, 2).reverse().join(" ") ?? "Point on map")
+                    })
             }
-            else{
+            if (startMarkerRef.current) {
+                const latLang = startMarkerRef.current.getLatLng()
+                setStartPosition([latLang.lat, latLang.lng])
+                setStartStop(null)
+                handleSearchJourney(new FormData())
+                fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latLang?.lat}&lon=${latLang?.lng}&format=json`, { headers: { "accept-language": "pl-PL" } })
+                    .then(res => res.json())
+                    .then(data => {
+                        setStartInput(data.display_name?.toString().split(",").slice(0, 2).reverse().join(" ") ?? "Point on map")
+                    })
+            }
+
+        }
+    }
+    useEffect(() => {
+        if (startPosition) {
+            if (targetPosition) {
+                map.flyToBounds(new LatLngBounds([targetPosition, startPosition]), { paddingTopLeft: [440, 0] })
+            }
+            else {
                 map.flyTo(startPosition, map.getZoom())
             }
         }
     }, [startPosition])
     useEffect(() => {
-        if(targetPosition) {
-            if(startPosition){
-                map.flyToBounds(new LatLngBounds([targetPosition, startPosition]))
+        if (targetPosition) {
+            if (startPosition) {
+                map.flyToBounds(new LatLngBounds([targetPosition, startPosition]), { paddingTopLeft: [440, 0] })
             }
-            else{
+            else {
                 map.flyTo(targetPosition, map.getZoom())
             }
         }
     }, [targetPosition])
     const handleSetPosition = async (type: "start" | "target") => {
-        if(type == "start"){
+        if (type == "start") {
             setStartPosition([selectingPosition!.lat, selectingPosition!.lng])
+            setStartStop(null)
         }
-        if(type == "target"){
+        if (type == "target") {
             setTargetPosition([selectingPosition!.lat, selectingPosition!.lng])
+            setTargetStop(null)
         }
-        map.flyTo(selectingPosition!, map.getZoom())
+        map.flyTo(selectingPosition!, map.getZoom(),)
 
-        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${selectingPosition?.lat}&lon=${selectingPosition?.lng}&format=json`, {headers: {"accept-language": "pl-PL"}})
-        .then(res => res.json())
-        .then(data => {
-            if(type == "start"){
-                setStartInput(data.display_name?.toString() ?? "Point on map")
-            }
-            else{
-                setTargetInput(data.display_name?.toString() ?? "Point on map")
-            }
-        })
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${selectingPosition?.lat}&lon=${selectingPosition?.lng}&format=json`, { headers: { "accept-language": "pl-PL" } })
+            .then(res => res.json())
+            .then(data => {
+                if (type == "start") {
+                    setStartInput(data.display_name?.toString().split(",").slice(0, 2).reverse().join(" ") ?? "Point on map")
+                }
+                else {
+                    setTargetInput(data.display_name?.toString().split(",").slice(0, 2).reverse().join(" ") ?? "Point on map")
+                }
+            })
 
         setSelectingPosition(null)
     }
 
     const startIcon = divIcon({
         className: "divIcon",
-        html: "<h4>START</h4>"
+        html: "<div class='contentWrapper'><h4>START</h4></div><div class='tip'></div>"
     })
     const targetIcon = divIcon({
         className: "divIcon",
-        html: "<h4>END</h4>"
+        html: "<div class='contentWrapper'><h4>END</h4></div><div class='tip'></div>"
     })
-  return (
-    <>
-        {selectingPosition &&
-            <Popup position={selectingPosition} keepInView={true}>
-                <button onClick={() => handleSetPosition("start")}>Set as start position</button>
-                <button onClick={() => handleSetPosition("target")}>Set as target position</button>
-            </Popup>
-        }
-        {startPosition &&
-            <Marker position={new LatLng(startPosition[0], startPosition[1])} icon={startIcon} />
-        }
-        {targetPosition &&
-            <Marker position={new LatLng(targetPosition[0], targetPosition[1])} icon={targetIcon} />
-        }
-    </>
-  )
+    return (
+        <>
+            {selectingPosition &&
+                <Popup position={selectingPosition} keepInView={true}>
+                    <button onClick={() => handleSetPosition("start")}>Set as start position</button>
+                    <button onClick={() => handleSetPosition("target")}>Set as target position</button>
+                </Popup>
+            }
+            {startPosition &&
+                <Marker ref={startMarkerRef} eventHandlers={eventHandlers} draggable={true} position={new LatLng(startPosition[0], startPosition[1])} icon={startIcon} />
+            }
+            {targetPosition &&
+                <Marker ref={targetMarkerRef} eventHandlers={eventHandlers} draggable={true} position={new LatLng(targetPosition[0], targetPosition[1])} icon={targetIcon} />
+            }
+        </>
+    )
 }

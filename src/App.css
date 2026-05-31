@@ -8,8 +8,8 @@
   width: 400px;
   height: 700px;
   position: absolute;
-  left: 1vw;
-  top: 1vh;
+  left: 10px;
+  top: 10px;
   background-color: white;
   border-radius: 10px;
   z-index: 999;
@@ -41,12 +41,26 @@ input[type="text"]:focus-visible{
   cursor: pointer;
 }
 .divIcon{
-  padding: 10px;
-  background-color: rgb(69, 69, 69);
-  color: white;
+  margin-left: -25px !important;
+  margin-top: -40px !important;
   width: auto !important;
   height: auto !important;
+  position: relative;
+}
+.divIcon .contentWrapper{
+  background-color: rgb(69, 69, 69);
+  padding: 5px;
   border-radius: 5px;
+  color: white;
+
+}
+.divIcon .tip{
+  height: 20px;
+  background-color: rgb(69, 69, 69);
+  width: 3px;
+  position: absolute;
+  bottom: -15px;
+  left: calc(50% - 3px);
 }
 
 .stopEntry:hover{
@@ -60,6 +74,13 @@ input[type="text"]:focus-visible{
 .journeyEntry{
   display: flex;
   flex-direction: column;
+  margin: 5px;
+  border: 1px solid rgb(69, 69, 69);
+  border-radius: 5px;
+  transition: box-shadow 0.3s ease-in-out;
+}
+.journeyEntry:hover{
+  box-shadow: 5px 5px 3px rgba(0, 0, 0, 0.5);
 }
 .vehicles{
   display: flex;
@@ -84,5 +105,24 @@ input[type="text"]:focus-visible{
 }
 .orange{
   background-color: orange;
+}
+
+.stopPopup .leaflet-popup-content{
+  margin: 0;
+  text-align: center;
+}
+.stopPopup .leaflet-popup-content-wrapper{
+  padding: 5px
+}
+.stopPopup .leaflet-popup-tip{
+  width: 3px;
+  transform: none;
+  -moz-transform: none;
+  -webkit-transform: none;
+  -ms-transform: none;
+}
+.scrollWrap{
+  overflow: scroll;
+  height: calc(700px - 125px);
 }
 
