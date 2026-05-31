@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.tsx'
 import { BrowserRouter } from 'react-router'
 import "leaflet/dist/leaflet.css"
+import '@fontsource-variable/roboto/wght.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
