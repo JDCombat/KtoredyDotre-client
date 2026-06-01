@@ -20,8 +20,8 @@ type props = {
 export default function PositionSelector({ startPosition, setStartPosition, targetPosition, setTargetPosition, setTargetInput, setStartInput, clickEnabled, setTargetStop, setStartStop, handleSearchJourney, searched }: props) {
     const [selectingPosition, setSelectingPosition] = useState<LatLng | null>(null)
 
-    const targetMarkerRef = useRef<unknown>(null)
-    const startMarkerRef = useRef<unknown>(null)
+    const targetMarkerRef = useRef<any>(null)
+    const startMarkerRef = useRef<any>(null)
 
     const map = useMapEvents({
         click(e: LeafletMouseEvent) {

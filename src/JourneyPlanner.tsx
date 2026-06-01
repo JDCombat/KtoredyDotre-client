@@ -43,7 +43,8 @@ export function JourneyPlanner({ state }: JourneyPlannerProps) {
         <div className="scrollWrap">
           {searchedStops?.map(e =>
             <div key={e.stopSlug} className='stopEntry' onClick={() => handleSelectStop(stopType, e)}>
-              <p>{e.gtfsStopName} Stops: {map.get(e.stopSlug)}</p>
+              <p style={{ fontWeight: 600 }}>{e.gtfsStopName}</p>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>Routes: {map.get(e.stopSlug)}</p>
             </div>
           )}
         </div>
