@@ -2,7 +2,6 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import { BrowserRouter } from 'react-router'
 import "leaflet/dist/leaflet.css"
 import '@fontsource-variable/roboto/wght.css';
 

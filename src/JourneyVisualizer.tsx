@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import type { Journey } from './types'
 import { Marker, Polyline, Popup, useMapEvents } from 'react-leaflet'
 import { divIcon, icon, type PathOptions } from 'leaflet'
@@ -10,7 +10,7 @@ export const JourneyVisualizer = ({ journey }: { journey: Journey | null }) => {
     const [zoom, setZoom] = useState<number>(15)
 
     const map = useMapEvents({
-        zoom: (e) => {
+        zoom: () => {
             setZoom(map.getZoom())
         },
     })
@@ -24,11 +24,11 @@ export const JourneyVisualizer = ({ journey }: { journey: Journey | null }) => {
             {journey?.legs.map(e =>
                 <>
                     <Polyline key={e.legIndex} positions={e.shape.map(j => j.position)}
-                        pathOptions={e.legType == "Vehicle" ? { color: colors[e.legIndex], weight: 5, dashArray: "" }
+                        pathOptions={e.legType == "Vehicle" ? { color: colors[e.legIndex % colors.length], weight: 5, dashArray: "" }
                             : walkLine}>
                         {e.legType == "Vehicle" &&
                             <Marker key={e.legIndex} position={e.shape[Math.floor(e.shape.length / 2)].position}
-                                icon={divIcon({ className: `routeBadge ${colors[e.legIndex]}`, html: `<h4>${e.route?.gtfsRouteName}</h4>` })} />}
+                                icon={divIcon({ className: `routeBadge ${colors[e.legIndex % colors.length]}`, html: `<h4>${e.route?.gtfsRouteName}</h4>` })} />}
                     </Polyline>
                     {e.stops &&
                         <>
@@ -37,7 +37,7 @@ export const JourneyVisualizer = ({ journey }: { journey: Journey | null }) => {
                         </>
                     }
                     {zoom > 15 ? e.stops?.map(j =>
-                        <Marker key={j.stopSlug} icon={stopIcon} position={j.position}>
+                        <Marker key={j.gtfsStopId} icon={stopIcon} position={j.position}>
                             <Popup className='stopPopup' closeButton={false}>
                                 {j.gtfsStopName}
                             </Popup>

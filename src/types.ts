@@ -48,3 +48,9 @@ export interface Journey {
   departureTime: string;
   arrivalTime: string;
 }
+export interface JourneySearchOverrides {
+  newStartPos?: [number, number] | null;
+  newTargetPos?: [number, number] | null;
+  newStartStop?: string | null;
+  newTargetStop?: string | null;
+}

@@ -1,6 +1,7 @@
 import { divIcon, LatLng, LatLngBounds, type LeafletEventHandlerFnMap, type LeafletMouseEvent } from 'leaflet'
 import { useEffect, useRef, useState } from 'react'
 import { Marker, Popup, useMapEvents } from 'react-leaflet'
+import type { JourneySearchOverrides } from './types'
 
 type props = {
     startPosition: [number, number] | null
@@ -12,14 +13,15 @@ type props = {
     clickEnabled: boolean,
     setStartStop: (state: string | null) => void
     setTargetStop: (state: string | null) => void,
-    handleSearchJourney: (data: FormData) => void
+    handleSearchJourney: (data: JourneySearchOverrides) => void
+    searched: boolean
 }
 
-export default function PositionSelector({ startPosition, setStartPosition, targetPosition, setTargetPosition, setTargetInput, setStartInput, clickEnabled, setTargetStop, setStartStop, handleSearchJourney }: props) {
+export default function PositionSelector({ startPosition, setStartPosition, targetPosition, setTargetPosition, setTargetInput, setStartInput, clickEnabled, setTargetStop, setStartStop, handleSearchJourney, searched }: props) {
     const [selectingPosition, setSelectingPosition] = useState<LatLng | null>(null)
 
-    const targetMarkerRef = useRef(null)
-    const startMarkerRef = useRef(null)
+    const targetMarkerRef = useRef<unknown>(null)
+    const startMarkerRef = useRef<unknown>(null)
 
     const map = useMapEvents({
         click(e: LeafletMouseEvent) {
@@ -30,32 +32,40 @@ export default function PositionSelector({ startPosition, setStartPosition, targ
             setTimeout(() => setSelectingPosition(e.latlng), 1)
         },
     })
-    const eventHandlers: LeafletEventHandlerFnMap = {
+    const targetEventHandlers: LeafletEventHandlerFnMap = {
         dragend: (e) => {
             console.log(e)
             if (targetMarkerRef.current) {
                 const latLang = targetMarkerRef.current.getLatLng()
                 setTargetPosition([latLang.lat, latLang.lng])
                 setTargetStop(null)
-                handleSearchJourney(new FormData())
+                if(searched){
+                    handleSearchJourney({newTargetPos: [latLang.lat, latLang.lng], newTargetStop: null})
+                }
                 fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latLang?.lat}&lon=${latLang?.lng}&format=json`, { headers: { "accept-language": "pl-PL" } })
                     .then(res => res.json())
                     .then(data => {
                         setTargetInput(data.display_name?.toString().split(",").slice(0, 2).reverse().join(" ") ?? "Point on map")
                     })
             }
+
+        }
+    }
+    const startEventHandlers: LeafletEventHandlerFnMap = {
+        dragend: () => {
             if (startMarkerRef.current) {
                 const latLang = startMarkerRef.current.getLatLng()
                 setStartPosition([latLang.lat, latLang.lng])
                 setStartStop(null)
-                handleSearchJourney(new FormData())
+                if(searched){
+                    handleSearchJourney({newStartPos: [latLang.lat, latLang.lng], newStartStop: null})
+                }
                 fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latLang?.lat}&lon=${latLang?.lng}&format=json`, { headers: { "accept-language": "pl-PL" } })
                     .then(res => res.json())
                     .then(data => {
                         setStartInput(data.display_name?.toString().split(",").slice(0, 2).reverse().join(" ") ?? "Point on map")
                     })
             }
-
         }
     }
     useEffect(() => {
@@ -120,10 +130,10 @@ export default function PositionSelector({ startPosition, setStartPosition, targ
                 </Popup>
             }
             {startPosition &&
-                <Marker ref={startMarkerRef} eventHandlers={eventHandlers} draggable={true} position={new LatLng(startPosition[0], startPosition[1])} icon={startIcon} />
+                <Marker ref={startMarkerRef} eventHandlers={startEventHandlers} draggable={true} position={new LatLng(startPosition[0], startPosition[1])} icon={startIcon} />
             }
             {targetPosition &&
-                <Marker ref={targetMarkerRef} eventHandlers={eventHandlers} draggable={true} position={new LatLng(targetPosition[0], targetPosition[1])} icon={targetIcon} />
+                <Marker ref={targetMarkerRef} eventHandlers={targetEventHandlers} draggable={true} position={new LatLng(targetPosition[0], targetPosition[1])} icon={targetIcon} />
             }
         </>
     )
