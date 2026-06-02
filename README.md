@@ -12,5 +12,5 @@ A client for jakdojade clone made for a school project, is somewhat functional a
 ```bash
 npm install
 
-npm run start # for dev server
+npm run dev # for dev server
 ```
