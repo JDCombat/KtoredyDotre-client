@@ -10,13 +10,14 @@ A client for jakdojade clone made for a school project, is somewhat functional a
 
 To fetch the backend
 ```bash
-git submodules init
+git submodule init
+git submodule update
 ```
 
 ### Running in docker
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 ### Running
