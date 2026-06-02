@@ -35,7 +35,7 @@ export function JourneyPlanner({ state }: JourneyPlannerProps) {
       <>
         <form onSubmit={(e) => { e.preventDefault(); handleSearchJourney(); }} className='searchForm'>
           <input value={startInput} type="text" onClick={() => setStopType("start")} onChange={handleTypeStop} name='startStop' placeholder='From where' />
-          <img src={changeIcon} width={20} height={20} className='changeButton' alt="change" onClick={handleChangeStops} />
+          <img src={changeIcon} width={30} height={30} className='changeButton' alt="change" onClick={handleChangeStops} />
           <input value={targetInput} type="text" onClick={() => setStopType("target")} onChange={handleTypeStop} name='targetStop' placeholder='To where' />
           <input value={date} onChange={(e) => setDate(e.target.value)} type="datetime-local" name='departureTime' />
           <button>Search</button>
