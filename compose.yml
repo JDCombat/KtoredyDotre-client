@@ -1,0 +1,11 @@
+services:
+  front:
+    build: .
+    ports:
+      - "80:5173"
+    environment:
+      DB_HOST: api
+    depends_on:
+      - api
+  api:
+    build: ./ktoredydotre-server

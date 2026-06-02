@@ -1,0 +1,3 @@
+[submodule "ktoredydotre-server"]
+	path = ktoredydotre-server
+	url = git@github.com:sokzkomucha/ktoredydotre-server
