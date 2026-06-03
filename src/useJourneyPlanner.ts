@@ -10,7 +10,9 @@ const getLocalISOString = () => {
 };
 
 export function useJourneyPlanner() {
-  const api_url = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
+  const api_url = import.meta.env.VITE_BACKEND_URL 
+    ? `http://${import.meta.env.VITE_BACKEND_URL}` 
+    : ""
 
   const [searchedStops, setSearchedStops] = useState<Stop[]>()
   const [stopType, setStopType] = useState<"target" | "start">("start")
@@ -62,13 +64,13 @@ export function useJourneyPlanner() {
       }
       return
     }
-    const res = await fetch(`http://${api_url}/api/stops/byNameContaining/${input}`)
+    const res = await fetch(`${api_url}/api/stops/byNameContaining/${input}`)
     const data = await res.json()
     const uniqueSlugs = new Map((data.items as Stop[]).map(e => [e.stopSlug, e]))
     const array = Array.from(uniqueSlugs.values())
     const map = new Map<string, string>()
     for (const stop of array){
-      const routesRes = await fetch(`http://${api_url}/api/routes/passingThroughStop/${stop.stopSlug}?pageSize=10`)
+      const routesRes = await fetch(`${api_url}/api/routes/passingThroughStop/${stop.stopSlug}?pageSize=10`)
       const routesData = await routesRes.json()
       map.set(stop.stopSlug, (routesData.items as Route[]).map(e=>e.gtfsRouteName).join(", "))
     }
@@ -89,7 +91,7 @@ export function useJourneyPlanner() {
     
     const resolvedStartPos = overrides.newStartPos !== undefined ? overrides.newStartPos : startPosition;
     const resolvedTargetPos = overrides.newTargetPos !== undefined ? overrides.newTargetPos : targetPosition;
-    const res = await fetch(`http://${api_url}/api/journey/findMultiple`,
+    const res = await fetch(`${api_url}/api/journey/findMultiple`,
       {
         method: "post",
         body: JSON.stringify({
